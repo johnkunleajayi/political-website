@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>African Development Party - Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .header {
+      background-color: #005BBB;
+      color: white;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .header img {
+      height: 60px;
+    }
+    .header-text {
+      flex-grow: 1;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+    nav {
+      background-color: #004499;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+      gap: 30px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 8px 14px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+    nav a:hover {
+      background-color: #003f8a;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .container h2 {
+      text-align: center;
+      color: #228B22;
+    }
+    ul#memberList {
+      list-style: none;
+      padding: 0;
+    }
+    ul#memberList li {
+      background: #e6f4ea;
+      margin-bottom: 10px;
+      padding: 15px 20px;
+      border-left: 5px solid #990000;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .error, .loading {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .error {
+      color: red;
+    }
+    .loading {
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="adplogo.png" alt="ADP Logo" />
+    <div class="header-text">
+      <h1>African Development Party</h1>
+    </div>
+  </div>
+
+  <nav>
+    <a href="dashboard.html">Members List</a>
+    <a href="search.html">Search Member</a>
+    <a href="register.html">Register Member</a>
+  </nav>
+
+  <div class="container">
+    <h2>Members List</h2>
+    <ul id="memberList">
+      <li class="loading">Loading members...</li>
+    </ul>
+  </div>
+
+  <script>
+    const accessToken = sessionStorage.getItem("accessToken");
+    const instanceUrl = sessionStorage.getItem("instanceUrl");
+
+    if (!accessToken || !instanceUrl) {
+      document.querySelector(".container").innerHTML = "<p class='error'>Access token missing. Please log in again.</p>";
+    } else {
+      const query = encodeURIComponent("SELECT Name, Email_Address__c FROM Party_Members__c");
+      const apiUrl = `${instanceUrl}/services/data/v60.0/query?q=${query}`;
+
+      fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        const members = data.records;
+        const list = document.getElementById("memberList");
+        list.innerHTML = "";
+
+        if (members.length === 0) {
+          list.innerHTML = "<li>No matching records found.</li>";
+        } else {
+          members.forEach(member => {
+            const li = document.createElement("li");
+            li.textContent = `${member.Name} - ${member.Email_Address__c}`;
+            list.appendChild(li);
+          });
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching members:", err);
+        document.querySelector(".container").innerHTML += "<p class='error'>Failed to load party members.</p>";
+      });
+    }
+  </script>
+</body>
+</html>

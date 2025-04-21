@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>African Development Party - Register Member</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .header {
+      background-color: #005BBB;
+      color: white;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .header img {
+      height: 60px;
+    }
+    .header-text {
+      flex-grow: 1;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+    nav {
+      background-color: #004499;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+      gap: 30px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 8px 14px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+    nav a:hover {
+      background-color: #003f8a;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .container h2 {
+      text-align: center;
+      color: #228B22;
+      margin-bottom: 25px;
+    }
+    form .form-group {
+      margin-bottom: 20px;
+    }
+    form label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #005BBB;
+    }
+    form input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    form button {
+      background-color: #990000;
+      color: white;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+    }
+    form button:hover {
+      background-color: #b30000;
+    }
+    .message {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="adplogo.png" alt="ADP Logo" />
+    <div class="header-text">
+      <h1>African Development Party</h1>
+    </div>
+  </div>
+
+  <nav>
+    <a href="dashboard.html">Members List</a>
+    <a href="search.html">Search Member</a>
+    <a href="register.html">Register Member</a>
+  </nav>
+
+  <div class="container">
+    <h2>Register New Member</h2>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" required />
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" required />
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="text" id="phone" required />
+      </div>
+      <div class="form-group">
+        <label for="membershipId">Membership ID</label>
+        <input type="text" id="membershipId" required />
+      </div>
+      <button type="submit">Register Member</button>
+      <div id="message" class="message"></div>
+    </form>
+  </div>
+
+  <script>
+    const accessToken = sessionStorage.getItem("accessToken");
+    const instanceUrl = sessionStorage.getItem("instanceUrl");
+
+    document.getElementById("registerForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const messageDiv = document.getElementById("message");
+      messageDiv.textContent = "";
+
+      if (!accessToken || !instanceUrl) {
+        messageDiv.textContent = "Access token or instance URL missing.";
+        messageDiv.className = "message error";
+        return;
+      }
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const membershipId = document.getElementById("membershipId").value.trim();
+
+      if (!name || !email || !phone || !membershipId) {
+        messageDiv.textContent = "Please fill in all fields.";
+        messageDiv.className = "message error";
+        return;
+      }
+
+      const url = `${instanceUrl}/services/data/v60.0/sobjects/Party_Members__c/`;
+      const payload = {
+        Name: name,
+        Email_Address__c: email,
+        Phone_Number__c: phone,
+        Membership_ID__c: membershipId
+      };
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("Failed to register member.");
+        return response.json();
+      })
+      .then(data => {
+        messageDiv.textContent = "Member registered successfully!";
+        messageDiv.className = "message success";
+        document.getElementById("registerForm").reset();
+      })
+      .catch(err => {
+        console.error("Registration error:", err);
+        messageDiv.textContent = "Error registering member. Please try again.";
+        messageDiv.className = "message error";
+      });
+    });
+  </script>
+</body>
+</html>

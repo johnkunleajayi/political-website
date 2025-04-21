@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ADP Login</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .header {
+      background-color: #005BBB;
+      color: white;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .header img {
+      height: 60px;
+    }
+    .header-text {
+      flex-grow: 1;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+    nav {
+      background-color: #004499;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+      gap: 30px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 8px 14px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+    nav a:hover {
+      background-color: #003f8a;
+    }
+    .container {
+      max-width: 400px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .container h2 {
+      text-align: center;
+      color: #228B22;
+      margin-bottom: 25px;
+    }
+    #login {
+      background-color: #990000;
+      color: white;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      display: block;
+      margin: 0 auto;
+    }
+    #login:hover {
+      background-color: #b30000;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="adplogo.png" alt="ADP Logo" />
+    <div class="header-text">
+      <h1>African Development Party</h1>
+    </div>
+  </div>
+
+  <nav>
+    <a href="dashboard.html">Members List</a>
+    <a href="search.html">Search Member</a>
+    <a href="register.html">Register Member</a>
+  </nav>
+
+  <div class="container">
+    <h2>Login with Salesforce</h2>
+    <button id="login">Login with Salesforce</button>
+  </div>
+
+  <script>
+    document.getElementById("login").onclick = function () {
+      const clientId = "3MVG9k02hQhyUgQCsNr80uDxTzB18.jF7EzCeHvchN3ogPzfffVs6e4yPGk28ErbanDZZGe1ZDenfL6TqnKSr";
+      const redirectUri = "http://localhost:5500/callback.html";
+      const loginUrl = `https://login.salesforce.com/services/oauth2/authorize?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`;
+
+      window.location.href = loginUrl;
+    };
+  </script>
+</body>
+</html>

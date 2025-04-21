@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>African Development Party - Search Member</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .header {
+      background-color: #005BBB;
+      color: white;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .header img {
+      height: 60px;
+    }
+    .header-text {
+      flex-grow: 1;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+    nav {
+      background-color: #004499;
+      display: flex;
+      justify-content: center;
+      padding: 10px 0;
+      gap: 30px;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 8px 14px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+    nav a:hover {
+      background-color: #003f8a;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .container h2 {
+      text-align: center;
+      color: #228B22;
+    }
+    .form-group {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .form-group input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    .form-group button {
+      background-color: #990000;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .form-group button:hover {
+      background-color: #b30000;
+    }
+    .field {
+      margin-bottom: 15px;
+    }
+    .field label {
+      font-weight: bold;
+      display: block;
+      color: #005BBB;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .loading {
+      text-align: center;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="adplogo.png" alt="ADP Logo" />
+    <div class="header-text">
+      <h1>African Development Party</h1>
+    </div>
+  </div>
+
+  <nav>
+    <a href="dashboard.html">Members List</a>
+    <a href="search.html">Search Member</a>
+    <a href="register.html">Register Member</a>
+  </nav>
+
+  <div class="container">
+    <h2>Search Member</h2>
+    <div class="form-group">
+      <input type="text" id="memberIdInput" placeholder="Enter Membership ID..." />
+      <button onclick="searchMember()">Search</button>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const accessToken = sessionStorage.getItem("accessToken");
+    const instanceUrl = sessionStorage.getItem("instanceUrl");
+
+    function searchMember() {
+      const memberId = document.getElementById("memberIdInput").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "";
+
+      if (!accessToken || !instanceUrl) {
+        resultDiv.innerHTML = "<p class='error'>Access token or instance URL missing. Please log in again.</p>";
+        return;
+      }
+
+      if (!memberId) {
+        resultDiv.innerHTML = "<p class='error'>Please enter a Membership ID.</p>";
+        return;
+      }
+
+      const query = encodeURIComponent(`SELECT Name, Email_Address__c, Phone_Number__c, Membership_ID__c FROM Party_Members__c WHERE Membership_ID__c = '${memberId}'`);
+      const apiUrl = `${instanceUrl}/services/data/v60.0/query?q=${query}`;
+
+      resultDiv.innerHTML = "<p class='loading'>Searching...</p>";
+
+      fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        resultDiv.innerHTML = "";
+        if (!data.records || data.records.length === 0) {
+          resultDiv.innerHTML = "<p class='error'>No member found with that Membership ID.</p>";
+        } else {
+          const member = data.records[0];
+          resultDiv.innerHTML = `
+            <div class="field"><label>Name:</label> ${member.Name}</div>
+            <div class="field"><label>Email:</label> ${member.Email_Address__c || "N/A"}</div>
+            <div class="field"><label>Phone:</label> ${member.Phone_Number__c || "N/A"}</div>
+            <div class="field"><label>Membership ID:</label> ${member.Membership_ID__c}</div>
+          `;
+        }
+      })
+      .catch(err => {
+        console.error("Search error:", err);
+        resultDiv.innerHTML = "<p class='error'>An error occurred while searching. Please try again.</p>";
+      });
+    }
+  </script>
+</body>
+</html>

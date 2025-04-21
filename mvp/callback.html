@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>OAuth Callback</title></head>
+<body>
+  <script>
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get("access_token");
+    const instanceUrl = params.get("instance_url");
+
+    // Store token and instance URL
+    sessionStorage.setItem("accessToken", accessToken);
+    sessionStorage.setItem("instanceUrl", instanceUrl);
+
+    // Redirect to members list
+    window.location.href = "dashboard.html";
+  </script>
+</body>
+</html>
